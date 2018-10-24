@@ -18,7 +18,6 @@ let user = {username: '', sessionId: '', token: ''};
 
 app.use(session({
     genid: (req) => {
-      console.log(req.sessionId);
       return uuid()
     },
     secret: 'keyboard cat',
@@ -26,7 +25,9 @@ app.use(session({
     saveUninitialized: true
 }));
 
-
+/**
+ * User login
+ */
 app.post('/login', (req, res) => {
     if(req.body.username == "admin" && req.body.password == "admin") {
         user = {
@@ -38,10 +39,16 @@ app.post('/login', (req, res) => {
     }
 });
 
+/**
+ * Providing a CSRF token
+ */
 app.get('/getToken', function (req, res) {
     res.send({csrfToken: user.token});
 });
 
+/**
+ * Transferring Token when request comes with correct CSRF token, *this will validate the CSRF token of request from client side whether  it's match with the server's CSRF token
+ */
 app.post('/transferToken', (req, res) => {
     if(req.headers.sid == user.sessionId) {
         if(req.body.token == user.token) {
